@@ -1,420 +1,563 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Google Sheets Manager</title>
+  <title>App</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f4f6fb;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --accent: #3b6ef6;
+      --accent-light: #eef2ff;
+      --text: #1a202c;
+      --muted: #718096;
+      --error: #f76a8a;
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f4f8;
-      color: #1a202c;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       min-height: 100vh;
     }
-    header {
-      background: #1a73e8;
-      color: white;
-      padding: 18px 32px;
+
+    /* ══════════════════════════════════════
+       PANTALLA LOGIN
+    ══════════════════════════════════════ */
+    #pantalla-login {
+      min-height: 100vh;
       display: flex;
       align-items: center;
-      gap: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    header svg { width: 28px; height: 28px; }
-    header h1 { font-size: 1.3rem; font-weight: 600; }
-    .container { max-width: 860px; margin: 40px auto; padding: 0 20px; }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    }
-    .card h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #1a73e8;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      justify-content: center;
+      padding: 20px;
+      background: #0a0a0f;
     }
 
-    .btn {
-      padding: 10px 22px;
-      border: none;
-      border-radius: 8px;
+    #pantalla-login::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(59,110,246,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,106,247,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .login-card {
+      background: #13131a;
+      border: 1px solid #1e1e2e;
+      border-radius: 18px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      position: relative;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,110,246,0.6), transparent);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-logo {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), #7c6af7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 20px;
+    }
+
+    .login-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #e8e8f0;
+      margin-bottom: 6px;
+    }
+
+    .login-sub {
+      font-size: 0.82rem;
+      color: #5a5a7a;
+      margin-bottom: 32px;
+    }
+
+    #btn-login {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid #2a2a3a;
+      border-radius: 10px;
+      padding: 12px 20px;
+      color: var(--text);
       font-size: 0.9rem;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-primary { background: #1a73e8; color: white; }
-    .btn-primary:hover { background: #1558b0; }
-    .btn-success { background: #34a853; color: white; }
-    .btn-success:hover { background: #267a3e; }
-    .btn-danger  { background: #ea4335; color: white; }
-    .btn-danger:hover  { background: #b5271e; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .input-row {
       display: flex;
+      align-items: center;
+      justify-content: center;
       gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
+      transition: background 0.2s, transform 0.15s;
     }
-    input[type="text"] {
-      flex: 1;
-      min-width: 180px;
-      padding: 10px 14px;
-      border: 1.5px solid #dde3ea;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      outline: none;
-      transition: border 0.2s;
-    }
-    input[type="text"]:focus { border-color: #1a73e8; }
 
-    .status-bar {
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      margin-top: 10px;
+    #btn-login:hover { background: #f8f9ff; transform: translateY(-1px); }
+
+    #btn-login svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    #login-error {
+      margin-top: 14px;
+      font-size: 0.78rem;
+      color: var(--error);
       display: none;
     }
-    .status-bar.show { display: block; }
-    .status-bar.info    { background: #e8f0fe; color: #1a73e8; }
-    .status-bar.success { background: #e6f4ea; color: #267a3e; }
-    .status-bar.error   { background: #fce8e6; color: #b5271e; }
 
-    #auth-section { text-align: center; padding: 40px 20px; }
-    #auth-section p { color: #5f6368; margin-bottom: 20px; font-size: 0.95rem; }
+    /* ══════════════════════════════════════
+       PANTALLA LISTADO
+    ══════════════════════════════════════ */
+    #pantalla-listado { display: none; }
 
-    .sheet-id-display {
-      background: #f8f9fa;
-      border: 1.5px solid #dde3ea;
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-title { font-weight: 700; font-size: 1rem; color: var(--text); }
+
+    #btn-logout {
+      background: none;
+      border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 0.82rem;
-      color: #5f6368;
-      word-break: break-all;
-      margin-top: 12px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.88rem;
-      margin-top: 10px;
+    #btn-logout:hover { border-color: var(--error); color: var(--error); }
+
+    .listado-body { padding: 32px 20px; max-width: 960px; margin: 0 auto; }
+
+    /* ── Estado ── */
+    #estado {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      display: none;
     }
-    th {
-      background: #1a73e8;
-      color: white;
-      padding: 10px 14px;
-      text-align: left;
-      font-weight: 500;
+
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 12px;
     }
-    tr:nth-child(even) td { background: #f8f9fa; }
-    td {
-      padding: 9px 14px;
-      border-bottom: 1px solid #e8eaed;
-      color: #3c4043;
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Grid ── */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 16px;
     }
-    .empty-msg { text-align: center; color: #9aa0a6; padding: 30px; font-size: 0.9rem; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+      box-shadow: 0 2px 12px rgba(59,110,246,0.07);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), #7c6af7);
+      opacity: 0;
+      transition: opacity 0.18s;
+    }
+
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(59,110,246,0.15); border-color: var(--accent); }
+    .card:hover::before { opacity: 1; }
+
+    .card-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #7c6af7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 700; color: white;
+      margin-bottom: 14px;
+    }
+
+    .card-id   { font-size: 0.68rem; color: var(--accent); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+    .card-name { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+    .card-meta { display: flex; gap: 6px; flex-wrap: wrap; }
 
     .tag {
-      display: inline-block;
-      background: #e8f0fe;
-      color: #1a73e8;
+      background: var(--accent-light);
+      color: var(--accent);
       border-radius: 20px;
-      padding: 3px 12px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      margin-left: 8px;
+      padding: 2px 10px;
+      font-size: 0.72rem;
+      font-weight: 500;
     }
-    .actions-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+
+    .card-arrow {
+      position: absolute;
+      bottom: 14px; right: 16px;
+      color: var(--border);
+      transition: color 0.18s, transform 0.18s;
+    }
+
+    .card:hover .card-arrow { color: var(--accent); transform: translateX(3px); }
+
+    /* ══════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════ */
+    #overlay {
+      position: fixed; inset: 0;
+      background: rgba(10,10,20,0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    #overlay.visible { display: flex; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    #modal {
+      background: var(--surface);
+      border-radius: 18px;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+      overflow: hidden;
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    #modal-header {
+      background: linear-gradient(135deg, var(--accent), #7c6af7);
+      padding: 28px 24px 24px;
+      color: white;
+      position: relative;
+    }
+
+    #modal-avatar {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    #modal-name  { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+
+    #modal-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 0.72rem;
+    }
+
+    #modal-close {
+      position: absolute; top: 14px; right: 14px;
+      background: rgba(255,255,255,0.2);
+      border: none; color: white;
+      width: 30px; height: 30px;
+      border-radius: 50%; cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+
+    #modal-close:hover { background: rgba(255,255,255,0.35); }
+
+    #modal-body { padding: 24px; }
+
+    .detail-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-row:last-child { border-bottom: none; }
+
+    .detail-icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: var(--accent-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; flex-shrink: 0;
+    }
+
+    .detail-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+    .detail-value { font-size: 0.92rem; font-weight: 600; }
+
+    #modal-loading {
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
   </style>
 </head>
 <body>
 
-<header>
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="3" y="3" width="18" height="18" rx="2" fill="white" fill-opacity="0.2" stroke="white" stroke-width="1.5"/>
-    <line x1="3" y1="9" x2="21" y2="9" stroke="white" stroke-width="1.5"/>
-    <line x1="3" y1="15" x2="21" y2="15" stroke="white" stroke-width="1.5"/>
-    <line x1="9" y1="9" x2="9" y2="21" stroke="white" stroke-width="1.5"/>
-  </svg>
-  <h1>Google Sheets Manager</h1>
-</header>
-
-<div class="container">
-
-  <!-- AUTH -->
-  <div class="card" id="auth-section">
-    <p>Inicia sesión con tu cuenta de Google para crear, editar y leer Sheets.</p>
-    <button class="btn btn-primary" onclick="handleLogin()">🔐 Iniciar sesión con Google</button>
-    <div id="auth-status" class="status-bar"></div>
-  </div>
-
-  <!-- MAIN (hidden until login) -->
-  <div id="main-section" style="display:none">
-
-    <!-- Crear Sheet -->
-    <div class="card">
-      <h2>📄 Crear nuevo Spreadsheet</h2>
-      <div class="input-row">
-        <input type="text" id="sheet-name" placeholder="Nombre del spreadsheet" value="Mi Spreadsheet"/>
-      </div>
-      <button class="btn btn-primary" onclick="createSheet()">Crear Sheet</button>
-      <div id="create-status" class="status-bar"></div>
-      <div id="sheet-id-display" class="sheet-id-display" style="display:none"></div>
-    </div>
-
-    <!-- Insertar datos -->
-    <div class="card">
-      <h2>✏️ Insertar / Actualizar datos <span class="tag">PUT</span></h2>
-      <div class="input-row">
-        <input type="text" id="insert-sheet-id" placeholder="Sheet ID (se llena automático al crear)"/>
-        <input type="text" id="insert-range"    placeholder="Rango (ej: Sheet1!A1)" value="Sheet1!A1"/>
-      </div>
-      <div class="input-row">
-        <input type="text" id="col-a" placeholder="Columna A" value="Nombre"/>
-        <input type="text" id="col-b" placeholder="Columna B" value="País"/>
-        <input type="text" id="col-c" placeholder="Columna C" value="Edad"/>
-      </div>
-      <div class="actions-row">
-        <button class="btn btn-primary" onclick="insertData()">Insertar fila</button>
-        <button class="btn btn-success" onclick="appendData()">➕ Agregar fila (append)</button>
-      </div>
-      <div id="insert-status" class="status-bar"></div>
-    </div>
-
-    <!-- Leer datos -->
-    <div class="card">
-      <h2>📊 Leer datos <span class="tag">GET</span></h2>
-      <div class="input-row">
-        <input type="text" id="read-sheet-id" placeholder="Sheet ID"/>
-        <input type="text" id="read-range"    placeholder="Rango (ej: Sheet1!A1:Z100)" value="Sheet1!A1:Z100"/>
-      </div>
-      <button class="btn btn-primary" onclick="readData()">Leer Sheet</button>
-      <div id="read-status" class="status-bar"></div>
-      <div id="table-container"></div>
-    </div>
-
-    <div style="text-align:right; margin-bottom: 20px;">
-      <button class="btn btn-danger" onclick="handleLogout()">Cerrar sesión</button>
+  <!-- ── LOGIN ── -->
+  <div id="pantalla-login">
+    <div class="login-card">
+      <div class="login-logo">📋</div>
+      <div class="login-title">Bienvenido</div>
+      <div class="login-sub">Inicia sesión para ver el listado</div>
+      <button id="btn-login">
+        <!-- Google icon -->
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Continuar con Google
+      </button>
+      <div id="login-error">Error al iniciar sesión. Intenta de nuevo.</div>
     </div>
   </div>
 
-</div>
+  <!-- ── LISTADO ── -->
+  <div id="pantalla-listado">
+    <nav>
+      <span class="nav-title">📋 Listado</span>
+      <button id="btn-logout">Cerrar sesión</button>
+    </nav>
+    <div class="listado-body">
+      <div id="estado">
+        <div class="spinner"></div>
+        <p id="estado-msg">Cargando datos...</p>
+      </div>
+      <div id="grid"></div>
+    </div>
+  </div>
 
-<!-- Google Identity Services -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- ── MODAL ── -->
+  <div id="overlay">
+    <div id="modal">
+      <div id="modal-loading">
+        <div class="spinner" style="margin:0 auto 12px"></div>
+        <p>Buscando registro...</p>
+      </div>
+      <div id="modal-content" style="display:none">
+        <div id="modal-header">
+          <button id="modal-close">✕</button>
+          <div id="modal-avatar"></div>
+          <div id="modal-name"></div>
+          <span id="modal-badge"></span>
+        </div>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+  </div>
 
-<script>
-  const CLIENT_ID = "607252823419-qrsktr92hff3k3kjmm82t5st3aavhso6.apps.googleusercontent.com";
-  const SCOPES    = "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file";
-  let accessToken = null;
-  let tokenClient = null;
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  // ─── AUTH ────────────────────────────────────────────────────────────────
+  <script>
+    const SHEET_ID = "1v3-cYlYlsuwSCf8D30Pcp_2unyE9gp4liCUHZmvz9Mk";
+    const CLIENT_ID = "607252823419-qrsktr92hff3k3kjmm82t5st3aavhso6.apps.googleusercontent.com";
+    const SCOPES    = "https://www.googleapis.com/auth/spreadsheets.readonly";
+    const ICONOS    = { ID: "🔑", Nombre: "👤", País: "🌎", Edad: "🎂" };
 
-  window.onload = () => {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: (response) => {
-        if (response.error) {
-          showStatus("auth-status", "Error al autenticar: " + response.error, "error");
-          return;
+    let accessToken  = null;
+    let tokenClient  = null;
+    let todosLosItems = [];
+
+    // ── Auth ────────────────────────────────────────────────────────────────
+
+    window.addEventListener("load", () => {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: (resp) => {
+          if (resp.error) {
+            document.getElementById("login-error").style.display = "block";
+            return;
+          }
+          accessToken = resp.access_token;
+          mostrarListado();
         }
-        accessToken = response.access_token;
-        document.getElementById("auth-section").style.display = "none";
-        document.getElementById("main-section").style.display = "block";
-      }
-    });
-  };
-
-  function handleLogin() {
-    tokenClient.requestAccessToken();
-  }
-
-  function handleLogout() {
-    if (accessToken) google.accounts.oauth2.revoke(accessToken);
-    accessToken = null;
-    document.getElementById("auth-section").style.display = "block";
-    document.getElementById("main-section").style.display = "none";
-    document.getElementById("table-container").innerHTML = "";
-    document.getElementById("sheet-id-display").style.display = "none";
-  }
-
-  // ─── CREAR SHEET ─────────────────────────────────────────────────────────
-
-  async function createSheet() {
-    const name = document.getElementById("sheet-name").value.trim() || "Mi Spreadsheet";
-    showStatus("create-status", "Creando spreadsheet...", "info");
-
-    try {
-      const res = await fetch("https://sheets.googleapis.com/v4/spreadsheets", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          properties: { title: name },
-          sheets: [{ properties: { title: "Sheet1" } }]
-        })
       });
+    });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || "Error desconocido");
+    document.getElementById("btn-login").addEventListener("click", () => {
+      document.getElementById("login-error").style.display = "none";
+      tokenClient.requestAccessToken();
+    });
 
-      const sheetId = data.spreadsheetId;
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      if (accessToken) google.accounts.oauth2.revoke(accessToken);
+      accessToken = null;
+      todosLosItems = [];
+      document.getElementById("grid").innerHTML = "";
+      document.getElementById("pantalla-listado").style.display = "none";
+      document.getElementById("pantalla-login").style.display   = "flex";
+    });
 
-      // Llenar campos de ID automáticamente
-      document.getElementById("insert-sheet-id").value = sheetId;
-      document.getElementById("read-sheet-id").value   = sheetId;
+    // ── Sheets fetch ─────────────────────────────────────────────────────────
 
-      const display = document.getElementById("sheet-id-display");
-      display.style.display = "block";
-      display.innerHTML = `✅ Sheet creado: <strong>${name}</strong><br>
-        ID: <code>${sheetId}</code><br>
-        <a href="https://docs.google.com/spreadsheets/d/${sheetId}" target="_blank">🔗 Abrir en Google Sheets</a>`;
-
-      showStatus("create-status", "¡Spreadsheet creado exitosamente!", "success");
-    } catch (e) {
-      showStatus("create-status", "Error: " + e.message, "error");
-    }
-  }
-
-  // ─── INSERTAR (PUT) ───────────────────────────────────────────────────────
-
-  async function insertData() {
-    const sheetId = document.getElementById("insert-sheet-id").value.trim();
-    const range   = document.getElementById("insert-range").value.trim();
-    const values  = getRowValues();
-
-    if (!sheetId) return showStatus("insert-status", "Ingresa un Sheet ID", "error");
-
-    showStatus("insert-status", "Insertando datos...", "info");
-
-    try {
+    async function fetchRango(rango) {
       const res = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?valueInputOption=RAW`,
-        {
-          method: "PUT",
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ values: [values] })
-        }
-      );
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message);
-      showStatus("insert-status", `✅ Datos escritos en ${range}`, "success");
-    } catch (e) {
-      showStatus("insert-status", "Error: " + e.message, "error");
-    }
-  }
-
-  // ─── APPEND (POST) ────────────────────────────────────────────────────────
-
-  async function appendData() {
-    const sheetId = document.getElementById("insert-sheet-id").value.trim();
-    const range   = document.getElementById("insert-range").value.trim();
-    const values  = getRowValues();
-
-    if (!sheetId) return showStatus("insert-status", "Ingresa un Sheet ID", "error");
-
-    showStatus("insert-status", "Agregando fila...", "info");
-
-    try {
-      const res = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ values: [values] })
-        }
-      );
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message);
-      showStatus("insert-status", "✅ Fila agregada correctamente", "success");
-    } catch (e) {
-      showStatus("insert-status", "Error: " + e.message, "error");
-    }
-  }
-
-  // ─── LEER (GET) ───────────────────────────────────────────────────────────
-
-  async function readData() {
-    const sheetId = document.getElementById("read-sheet-id").value.trim();
-    const range   = document.getElementById("read-range").value.trim();
-
-    if (!sheetId) return showStatus("read-status", "Ingresa un Sheet ID", "error");
-
-    showStatus("read-status", "Leyendo datos...", "info");
-
-    try {
-      const res = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(rango)}`,
         { headers: { "Authorization": `Bearer ${accessToken}` } }
       );
-
+      if (res.status === 401) throw new Error("Sesión expirada, vuelve a iniciar sesión");
+      if (!res.ok) throw new Error(`Error ${res.status}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message);
-
-      const rows = data.values || [];
-      renderTable(rows);
-      showStatus("read-status", `✅ ${rows.length} fila(s) encontradas`, "success");
-    } catch (e) {
-      showStatus("read-status", "Error: " + e.message, "error");
+      return data.values || [];
     }
-  }
 
-  // ─── HELPERS ──────────────────────────────────────────────────────────────
-
-  function getRowValues() {
-    return [
-      document.getElementById("col-a").value,
-      document.getElementById("col-b").value,
-      document.getElementById("col-c").value
-    ];
-  }
-
-  function renderTable(rows) {
-    const container = document.getElementById("table-container");
-    if (!rows.length) {
-      container.innerHTML = '<p class="empty-msg">No hay datos en este rango.</p>';
-      return;
+    function toObjetos(filas) {
+      if (filas.length < 2) return [];
+      const [header, ...rows] = filas;
+      return rows.map(row =>
+        Object.fromEntries(header.map((col, i) => [col, row[i] ?? ""]))
+      );
     }
-    const [header, ...body] = rows;
-    const ths = header.map(h => `<th>${h}</th>`).join("");
-    const trs = body.map(row =>
-      "<tr>" + header.map((_, i) => `<td>${row[i] ?? ""}</td>`).join("") + "</tr>"
-    ).join("");
 
-    container.innerHTML = `
-      <table>
-        <thead><tr>${ths}</tr></thead>
-        <tbody>${trs || '<tr><td colspan="${header.length}" class="empty-msg">Sin filas de datos</td></tr>'}</tbody>
-      </table>`;
-  }
+    // ── Pantalla listado ─────────────────────────────────────────────────────
 
-  function showStatus(id, msg, type) {
-    const el = document.getElementById(id);
-    el.textContent = msg;
-    el.className = `status-bar show ${type}`;
-  }
-</script>
+    function mostrarListado() {
+      document.getElementById("pantalla-login").style.display   = "none";
+      document.getElementById("pantalla-listado").style.display = "block";
+      cargarItems();
+    }
+
+    function setEstado(msg) {
+      document.getElementById("estado").style.display = "block";
+      document.getElementById("estado-msg").textContent = msg;
+      document.getElementById("grid").innerHTML = "";
+    }
+
+    function ocultarEstado() {
+      document.getElementById("estado").style.display = "none";
+    }
+
+    async function cargarItems() {
+      setEstado("Cargando datos...");
+      try {
+        const filas = await fetchRango("Sheet1!A:Z");
+        todosLosItems = toObjetos(filas);
+        ocultarEstado();
+        if (!todosLosItems.length) { setEstado("No hay datos en el sheet"); return; }
+        renderCards(todosLosItems);
+      } catch (e) {
+        setEstado("⚠️ " + e.message);
+      }
+    }
+
+    // ── Cards ────────────────────────────────────────────────────────────────
+
+    function renderCards(items) {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="card-avatar">${item.Nombre?.[0]?.toUpperCase() ?? "?"}</div>
+          <div class="card-id">ID ${item.ID}</div>
+          <div class="card-name">${item.Nombre}</div>
+          <div class="card-meta">
+            ${item.País ? `<span class="tag">🌎 ${item.País}</span>` : ""}
+            ${item.Edad ? `<span class="tag">🎂 ${item.Edad}</span>`  : ""}
+          </div>
+          <span class="card-arrow">→</span>
+        `;
+        card.addEventListener("click", () => abrirModal(item.ID));
+        grid.appendChild(card);
+      });
+    }
+
+    // ── Modal ────────────────────────────────────────────────────────────────
+
+    function abrirModal(id) {
+      document.getElementById("overlay").classList.add("visible");
+      document.getElementById("modal-loading").style.display  = "block";
+      document.getElementById("modal-content").style.display  = "none";
+
+      // Busca por ID en los datos ya cargados (sin hacer otro fetch)
+      const item = todosLosItems.find(o => String(o.ID) === String(id));
+
+      if (item) {
+        renderModal(item);
+      } else {
+        document.getElementById("modal-loading").innerHTML =
+          `<p style="color:var(--error)">⚠️ Registro no encontrado</p>`;
+      }
+    }
+
+    function renderModal(item) {
+      document.getElementById("modal-avatar").textContent = item.Nombre?.[0]?.toUpperCase() ?? "?";
+      document.getElementById("modal-name").textContent   = item.Nombre;
+      document.getElementById("modal-badge").textContent  = "ID: " + item.ID;
+
+      document.getElementById("modal-body").innerHTML = Object.entries(item)
+        .map(([key, val]) => `
+          <div class="detail-row">
+            <div class="detail-icon">${ICONOS[key] ?? "📋"}</div>
+            <div>
+              <div class="detail-label">${key}</div>
+              <div class="detail-value">${val}</div>
+            </div>
+          </div>
+        `).join("");
+
+      document.getElementById("modal-loading").style.display = "none";
+      document.getElementById("modal-content").style.display = "block";
+    }
+
+    function cerrarModal() {
+      document.getElementById("overlay").classList.remove("visible");
+    }
+
+    document.getElementById("modal-close").addEventListener("click", cerrarModal);
+    document.getElementById("overlay").addEventListener("click", e => {
+      if (e.target.id === "overlay") cerrarModal();
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") cerrarModal();
+    });
+  </script>
+
 </body>
 </html>
